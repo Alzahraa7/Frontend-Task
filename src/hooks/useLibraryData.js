@@ -1,5 +1,7 @@
 // src/hooks/useLibraryData.js
 import { useEffect, useState, useMemo } from 'react';
+// Base URL for API requests
+const baseUrl = import.meta.env.VITE_BASE_URL;
 
 const useLibraryData = ({ storeId = null, searchTerm = '' } = {}) => {
   // State for data
@@ -10,22 +12,22 @@ const useLibraryData = ({ storeId = null, searchTerm = '' } = {}) => {
 
   // Fetch all data
   useEffect(() => {
-    fetch('/data/stores.json')
+    fetch(`${baseUrl}/stores`)
       .then((response) => response.json())
       .then((data) => setStores(Array.isArray(data) ? data : [data]))
       .catch((error) => console.error('Error fetching stores:', error));
 
-    fetch('/data/books.json')
+    fetch(`${baseUrl}/books`)
       .then((response) => response.json())
       .then((data) => setBooks(Array.isArray(data) ? data : [data]))
       .catch((error) => console.error('Error fetching books:', error));
 
-    fetch('/data/authors.json')
+    fetch(`${baseUrl}/authors`)
       .then((response) => response.json())
       .then((data) => setAuthors(Array.isArray(data) ? data : [data]))
       .catch((error) => console.error('Error fetching authors:', error));
 
-    fetch('/data/inventory.json')
+    fetch(`${baseUrl}/inventory`)
       .then((response) => response.json())
       .then((data) => setInventory(Array.isArray(data) ? data : [data]))
       .catch((error) => console.error('Error fetching inventory:', error));
