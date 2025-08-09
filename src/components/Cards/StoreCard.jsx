@@ -28,7 +28,6 @@ const StoreCard = ({ name, noOfBooks, averagePrice, id }) => {
             onClick={
                 () => {
                     navigate(`/store/${id}`);
-                   
                 }
             }
           >

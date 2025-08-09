@@ -1,12 +1,24 @@
 // src/pages/Inventory.jsx
 import { useEffect, useState } from 'react';
+import { useParams } from 'react-router-dom';
+
 import Modal from '../components/Modal';
 import Header from '../components/Header';
+import { useInventoryRelations } from '../hooks/useLibraryDataFilter';
+import BooksTable from '../components/BooksTable';
+import Table from '../components/Table/Table';
 
 const Inventory = () => {
   // State for UI
   const [activeTab, setActiveTab] = useState('books');
   const [showModal, setShowModal] = useState(false);
+
+  // get the store id from the url
+  const storeId = useParams().storeId;
+  const { data: inventoryData, loading, error } = useInventoryRelations({
+    storeId,
+    query: `store_id=${storeId}`
+  });
 
   // Set active tab based on view query param
   const view = 'books';
@@ -21,6 +33,56 @@ const Inventory = () => {
   const closeModal = () => {
     setShowModal(false);
   };
+
+  if (loading) return <p>Loading...</p>;
+  if (error) return <p>Error: {error.message}</p>;
+  if (!inventoryData.length) return <p>No data found</p>;
+
+  console.log(inventoryData);
+  const renderBooksTable = () => (
+    <Table
+      columns={[
+        {
+          id: 'bookId',
+          header: 'Book ID',
+          accessorFn: (row) => row.book_id,
+        },
+        {
+          id: 'bookName',
+          header: 'Book Name',
+          accessorFn: (row) => row.book_name,
+        },
+        {
+          id: 'pages',
+          header: 'Pages',
+          accessorFn: (row) => row.pages,
+        },
+        {
+          id: 'authorName',
+          header: 'Author Name',
+          accessorFn: (row) => row.author_name,
+        }, {
+          id: 'price',
+          header: 'Price',
+          accessorFn: (row) => row.price,
+        }, {
+          id: 'actions',
+          header: 'Actions',
+          accessorFn: (row) => row.actions,
+        }]}
+      data={
+        [
+          ...inventoryData.map((item) => ({
+            book_id: item.book_id,
+            book_name: item.book.name,
+            pages: item.book.page_count,
+            author_name: item.book.author?.first_name + ' ' + item.book.author?.last_name,
+            price: item.price,
+            actions: item.actions
+          }))]
+      }
+    />
+  );
 
   return (
     <div className="py-6">
@@ -42,9 +104,9 @@ const Inventory = () => {
       <Header addNew={openModal} title={`Store Inventory`} buttonTitle="Add to inventory" />
 
       {activeTab === 'books' ? (
-          <p className="text-gray-600">No books found in this store.</p>
+        renderBooksTable()
       ) : (
-          <p className="text-gray-600">No authors with books in this store.</p>
+        <p className="text-gray-600">No authors with books in this store.</p>
       )}
 
       <Modal
